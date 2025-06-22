@@ -29,7 +29,7 @@ pipeline{
         }
         stage('Create container'){
             steps{
-                sh "docker run -it -d -p 9000:80 --name punithraj punith:1"
+                sh "docker run -it -d -p 9000:8080 --name punithraj punith:1"
             }
         }
 
