@@ -1,15 +1,13 @@
 pipeline{
     agent any
-
     tools{
-        jdk 'java-21'
-        maven 'mvn'
+        jdk 'java-11'
+        maven 'maven'
     }
-
     stages{
         stage('git Checkout'){
             steps{
-                git branch: 'main', url:'https://github.com/Suhelk739/Punith-Rajkumar.git'
+                git branch: 'main' , url: 'https://github.com/Suhelk739/Punith-Rajkumar.git'
             }
         }
         stage('Compile'){
@@ -17,23 +15,46 @@ pipeline{
                 sh "mvn compile"
             }
         }
-        stage('Build'){
+        stage('build'){
             steps{
                 sh "mvn clean install"
             }
         }
-        stage('Create image'){
+        stage('Create Image'){
             steps{
-                sh "docker build -t punith:1 ."
+                sh "docker build -t suhelk900/project1:tag1 ."
+            }
+            
+        }
+        stage('Containerization'){
+            steps{
+                sh "docker run -it -d  --name puneet -p 9000:8080 suhelk900/project1:tag1"
             }
         }
-        stage('Create container'){
+        stage('Dockerhub login'){
             steps{
-                sh "docker run -it -d -p 9000:8080 --name punithraj punith:1"
+                script {
+                    withCredentials([usernamePassword(credentialsId:'docker',usernameVariable:'Docker_username',passwordVariable:'Docker_password')])
+                    sh "echo $Docker_password | docker login -u $Docker_username --password-stdin"
+                }
+                
             }
         }
 
+        stage('Image push'){
+            steps{
+                sh "docker push suhelk900/project1:tag1"
+            }
+        }
 
-    
+        post{
+            always{
+                echo 'Pipeline execution completed.!'
+            }
+            failure{
+                echo 'Pipeline Failed'
+            }
+        }
+
     }
 }
